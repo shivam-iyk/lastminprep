@@ -13,6 +13,7 @@ import { submitTest } from "@/services/tests";
 import { useRouter } from "next/navigation";
 import { Code, HelpCircle } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { generateToken } from "@/services/user";
 
 interface Answers {
   mcqs: MCQAnswer[];
@@ -44,7 +45,7 @@ function TestForm({
   const handleChange = (
     value: string,
     index: number,
-    isCoding: boolean = false
+    isCoding: boolean = false,
   ) => {
     if (answers.mcqs.length === 0 && answers.coding.length === 0) {
       const mcqsStructure = mcqs.map((question) => ({
@@ -96,6 +97,18 @@ function TestForm({
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    const savedToken = localStorage.getItem("heavy-api-token");
+    let token = savedToken;
+    if (!savedToken) {
+      const generatedToken = await generateToken();
+      if (!generatedToken || !generatedToken?.data) {
+        toast.error("You are not authorized to access this test");
+        setIsSubmitting(false);
+        return;
+      }
+      token = generatedToken.data;
+    }
+
     const body: { mcqs: MCQAnswer[]; coding: CodingAnswer[] } = {
       mcqs: answers.mcqs,
       coding: answers.coding.map((codingAnswer) => ({
@@ -103,7 +116,7 @@ function TestForm({
         answer: codingAnswer.answer,
       })),
     };
-    const response = await submitTest(testId, body);
+    const response = await submitTest(testId, body, token);
     localStorage.removeItem(`test-${testId}`);
     setIsSubmitting(false);
     setDialogOpen(false);

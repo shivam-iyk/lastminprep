@@ -38,7 +38,7 @@ export const getTest = async (testId: string) => {
 export const getQuestions = async (
   testId: string,
   questionsPresent: boolean = false,
-  token: string | null = null
+  token: string | null = null,
 ) => {
   if (!testId) {
     return {
@@ -59,7 +59,7 @@ export const getQuestions = async (
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
-      }
+      },
     );
     return data;
   } catch (error) {
@@ -72,7 +72,8 @@ export const submitTest = async (
   answers: {
     mcqs: MCQAnswer[];
     coding: CodingAnswer[];
-  }
+  },
+  token: string | null = null,
 ) => {
   if (!testId) {
     return {
@@ -81,8 +82,19 @@ export const submitTest = async (
       message: "Test ID is required",
     };
   }
+  const heavyAPI = process.env.NEXT_PUBLIC_HEAVY_API;
+  const baseUrl = heavyAPI ?? process.env.NEXT_PUBLIC_LINK;
+
   try {
-    const { data } = await axios.post(`/api/test/${testId}/submit`, answers);
+    const { data } = await axios.post(
+      `${baseUrl}/api/test/${testId}/submit`,
+      answers,
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      },
+    );
     return data;
   } catch (error) {
     return handleError(error);

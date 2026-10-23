@@ -54,18 +54,19 @@ function Page() {
       setGenerating(false);
       return;
     }
+    localStorage.setItem("heavy-api-token", token.data);
 
     const response = await getQuestions(
       testId,
       questionsPresent === "1",
-      token.data
+      token.data,
     );
     if (response?.success) {
       setTest(response.data);
     } else {
       setErrorMessage(
         response?.message ||
-          `Failed to ${questionsPresent ? "fetch" : "generate"} test questions.`
+          `Failed to ${questionsPresent ? "fetch" : "generate"} test questions.`,
       );
     }
     setLoading(false);
