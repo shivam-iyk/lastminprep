@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      issuer: "https://github.com/login/oauth"
     }),
     CredentialsProvider({
       id: "credentials",
